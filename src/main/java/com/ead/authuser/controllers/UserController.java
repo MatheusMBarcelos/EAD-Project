@@ -14,14 +14,23 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Log4j2
 @RestController
@@ -34,9 +43,14 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<Page<UserModel>> getAllUsers(SpecificationTemplate.UserSpec spec,
-                                                       @PageableDefault(page = 0, size = 10, sort = "userId", direction = Sort.Direction.ASC)
-                                                               Pageable pageable) {
-        Page<UserModel> userModelPage = userService.findAll(spec, pageable);
+                                                       @PageableDefault(sort = "userId", direction = Sort.Direction.ASC) Pageable pageable,
+                                                       @RequestParam(required = false) UUID courseId) {
+        Page<UserModel> userModelPage;
+        if (courseId != null) {
+            userModelPage = userService.findAll(SpecificationTemplate.userCourseId(courseId).and(spec), pageable);
+        } else {
+            userModelPage = userService.findAll(spec, pageable);
+        }
         if (!userModelPage.isEmpty()) {
             for (UserModel user : userModelPage.toList()) {
                 user.add(linkTo(methodOn(UserController.class).getOneUser(user.getUserId())).withSelfRel());
@@ -83,7 +97,7 @@ public class UserController {
         userModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
 
         userService.save(userModel);
-        log.debug("POST updateUser userModel saved {}", userModel.toString());
+        log.debug("POST updateUser userId saved {}", userModel.getUserId());
         log.info("User updated successfully userId {}", userModel.getUserId());
         return ResponseEntity.status(HttpStatus.OK).body(userModel);
     }
@@ -106,7 +120,7 @@ public class UserController {
             userModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
 
             userService.save(userModel);
-            log.debug("PUT updatePassword userModel saved {} ", userModel.toString());
+            log.debug("PUT updatePassword userId saved {} ", userModel.getUserId());
             log.info("Password updated successfully userId {} ", userModel.getUserId());
             return ResponseEntity.status(HttpStatus.OK).body("Password updated successfully.");
         }
@@ -126,7 +140,7 @@ public class UserController {
         userModel.setLastUpdateDate(LocalDateTime.now(ZoneId.of("UTC")));
 
         userService.save(userModel);
-        log.debug("PUT updateImage userModel saved {} ", userModel.toString());
+        log.debug("PUT updateImage userId saved {} ", userModel.getUserId());
         log.info("Image updated successfully userId {} ", userModel.getUserId());
         return ResponseEntity.status(HttpStatus.OK).body(userModel);
     }
