@@ -21,7 +21,7 @@ import java.util.UUID;
 @Log4j2
 @Component
 @RequiredArgsConstructor
-public class UserClient {
+public class CourseClient {
 
     private final RestTemplate restTemplate;
     private final UtilsService utilsService;
@@ -30,11 +30,11 @@ public class UserClient {
     private String requestUriCourse;
 
 
-    public Page<CourseDTO> getAllCoursesByUser(UUID courseId, Pageable pageable) {
+    public Page<CourseDTO> getAllCoursesByUser(UUID userId, Pageable pageable) {
         List<CourseDTO> searchResult = null;
         ResponseEntity<ResponsePageDTO<CourseDTO>> result = null;
 
-        String url = requestUriCourse + utilsService.createUrl(courseId, pageable);
+        String url = requestUriCourse + utilsService.createUrl(userId, pageable);
 
         log.debug("Request URL: {} ", url);
         log.info("Request URL: {} ", url);
@@ -48,7 +48,7 @@ public class UserClient {
         } catch (HttpStatusCodeException e){
             log.error("Error request /courses {} ", e);
         }
-        log.info("Ending request /courses userId {} ", courseId);
+        log.info("Ending request /courses userId {} ", userId);
 
         return result.getBody();
     }
