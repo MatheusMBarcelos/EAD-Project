@@ -40,16 +40,22 @@ public class CourseClient {
         log.info("Request URL: {} ", url);
 
         try {
-            ParameterizedTypeReference<ResponsePageDTO<CourseDTO>> responseType = new ParameterizedTypeReference<ResponsePageDTO<CourseDTO>>() {};
+            ParameterizedTypeReference<ResponsePageDTO<CourseDTO>> responseType = new ParameterizedTypeReference<ResponsePageDTO<CourseDTO>>() {
+            };
             result = restTemplate.exchange(url, HttpMethod.GET, null, responseType);
             searchResult = result.getBody().getContent();
             log.debug("Response Number of Elements: {} ", searchResult.size());
 
-        } catch (HttpStatusCodeException e){
+        } catch (HttpStatusCodeException e) {
             log.error("Error request /courses {} ", e);
         }
         log.info("Ending request /courses userId {} ", userId);
 
         return result.getBody();
+    }
+
+    public void deleteUserInCourse(UUID userId) {
+        String url = requestUriCourse + "/courses/users/" + userId;
+        restTemplate.exchange(url, HttpMethod.DELETE, null, String.class);
     }
 }
