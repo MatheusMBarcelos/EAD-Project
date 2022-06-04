@@ -1,6 +1,6 @@
 package com.ead.authuser.controllers;
 
-import com.ead.authuser.dtos.InstructorDto;
+import com.ead.authuser.dtos.InstructorDTO;
 import com.ead.authuser.enums.UserType;
 import com.ead.authuser.models.UserModel;
 import com.ead.authuser.services.UserService;
@@ -29,7 +29,7 @@ public class InstructorController {
     private final UserService userService;
 
     @PostMapping("/subscription")
-    public ResponseEntity<Object> saveSubscriptionInstructor(@RequestBody @Valid InstructorDto instructorDto) {
+    public ResponseEntity<Object> saveSubscriptionInstructor(@RequestBody @Valid InstructorDTO instructorDto) {
         Optional<UserModel> userModelOptional = userService.findById(instructorDto.getUserId());
         if (userModelOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
