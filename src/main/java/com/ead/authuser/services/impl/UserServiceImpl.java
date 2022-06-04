@@ -1,6 +1,5 @@
 package com.ead.authuser.services.impl;
 
-import com.ead.authuser.clients.CourseClient;
 import com.ead.authuser.enums.ActionType;
 import com.ead.authuser.models.UserModel;
 import com.ead.authuser.publishers.UserEventPublisher;
@@ -63,5 +62,29 @@ public class UserServiceImpl implements UserService {
         userEventPublisher.publisherUserEvent(userModel.convertToUserEventDto(), ActionType.CREATE);
 
         return userModel;
+    }
+
+    @Transactional
+    @Override
+    public UserModel updateUser(UserModel userModel) {
+        userModel = save(userModel);
+
+        userEventPublisher.publisherUserEvent(userModel.convertToUserEventDto(), ActionType.UPDATE);
+
+        return userModel;
+    }
+
+    @Transactional
+    @Override
+    public UserModel updatePassword(UserModel userModel) {
+        return save(userModel);
+    }
+
+    @Transactional
+    @Override
+    public void deleteUser(UserModel userModel) {
+        delete(userModel);
+
+        userEventPublisher.publisherUserEvent(userModel.convertToUserEventDto(), ActionType.DELETE);
     }
 }
