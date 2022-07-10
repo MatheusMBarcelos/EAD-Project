@@ -1,6 +1,5 @@
 package com.ead.authuser.configs.security;
 
-import com.ead.authuser.configs.security.UserDetailsImpl;
 import com.ead.authuser.models.UserModel;
 import com.ead.authuser.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
