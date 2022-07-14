@@ -77,7 +77,7 @@ public class UserController {
 
         UUID currentUserId = authenticationCurrentUserService.getCurrentUser().getUserId();
         List<String> role = authenticationCurrentUserService.getCurrentUser().getAuthorities().stream()
-                .map(Object::toString).collect(Collectors.toList());
+                .map(GrantedAuthority::getAuthority).collect(Collectors.toList());
         if (currentUserId.equals(userId) || role.contains("ROLE_ADMIN")) {
             Optional<UserModel> userModelOptional = userService.findById(userId);
             if (userModelOptional.isEmpty()) {
