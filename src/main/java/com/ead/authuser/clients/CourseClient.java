@@ -11,6 +11,8 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -33,27 +35,27 @@ public class CourseClient {
     private String requestUriCourse;
 
 
-//    @Retry(name = "retryInstance", fallbackMethod = "retryfallback")
+    //    @Retry(name = "retryInstance", fallbackMethod = "retryfallback")
     @CircuitBreaker(name = "circuitbreakerInstance")
-    public Page<CourseDTO> getAllCoursesByUser(UUID userId, Pageable pageable) {
+    public Page<CourseDTO> getAllCoursesByUser(UUID userId, Pageable pageable, String token) {
         List<CourseDTO> searchResult = null;
         ResponseEntity<ResponsePageDTO<CourseDTO>> result = null;
 
         String url = requestUriCourse + utilsService.createUrl(userId, pageable);
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", token);
+        HttpEntity<String> requestEntity = new HttpEntity<>("parameters", headers);
+
         log.debug("Request URL: {} ", url);
         log.info("Request URL: {} ", url);
 
-        try {
-            ParameterizedTypeReference<ResponsePageDTO<CourseDTO>> responseType = new ParameterizedTypeReference<ResponsePageDTO<CourseDTO>>() {
-            };
-            result = restTemplate.exchange(url, HttpMethod.GET, null, responseType);
-            searchResult = result.getBody().getContent();
-            log.debug("Response Number of Elements: {} ", searchResult.size());
+        ParameterizedTypeReference<ResponsePageDTO<CourseDTO>> responseType = new ParameterizedTypeReference<ResponsePageDTO<CourseDTO>>() {
+        };
+        result = restTemplate.exchange(url, HttpMethod.GET, requestEntity, responseType);
+        searchResult = result.getBody().getContent();
 
-        } catch (HttpStatusCodeException e) {
-            log.error("Error request /courses {} ", e);
-        }
+        log.debug("Response Number of Elements: {} ", searchResult.size());
         log.info("Ending request /courses userId {} ", userId);
 
         return result.getBody();
